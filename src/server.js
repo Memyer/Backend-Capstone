@@ -1,13 +1,21 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const Hapi = require('@hapi/hapi');
 const routes = require('./routes');
 
-const app = express();
-const port = process.env.DB_PORT || 8080;
+const init = async () => {
+  const server = Hapi.server({
+    port: 8080,
+    host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',
+    routes: {
+      cors: {
+        origin: ['*'],
+      },
+    },
+  });
 
-app.use(bodyParser.json());
-app.use('/api', routes);
+  server.route(routes);
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+  await server.start();
+  console.log(`Server berjalan pada ${server.info.uri}`);
+};
+
+init();
